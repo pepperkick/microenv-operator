@@ -1,0 +1,136 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.10.0
+  creationTimestamp: null
+  name: configs.microenv.pepperkick.com
+spec:
+  group: microenv.pepperkick.com
+  names:
+    categories:
+    - microenv
+    kind: Config
+    listKind: ConfigList
+    plural: configs
+    singular: config
+  scope: Cluster
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Config is the Schema for the config provider API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ConfigSpec defines the provider configuration
+            properties:
+              aws:
+                description: AwsConfigSpec defines the AWS configuration
+                properties:
+                  baseAmiId:
+                    description: BaseAmiId points to the base AMI to use for instances
+                    type: string
+                  iamInstanceProfileName:
+                    description: IamInstanceProfileName points to IAM role to use
+                      for instances
+                    type: string
+                  ingressDomain:
+                    description: IngressDomain points to the domain to use, env domains
+                      will subdomains of it
+                    type: string
+                  instanceType:
+                    description: InstanceType points to default instance type to use
+                    type: string
+                  pcaCertIssuer:
+                    description: PcaCertIssuer points to the name of AWS cert issuer
+                    type: string
+                  region:
+                    description: Region is to use for creating resources
+                    type: string
+                  route53HostedZone:
+                    description: Route53HostedZone points to Route53 hosted zone for
+                      creating certs and dns entries
+                    type: string
+                  securityGroupId:
+                    description: SecurityGroupId points to security group to use for
+                      instances
+                    type: string
+                  subnetId:
+                    description: SubnetId points to subnet to use for instances
+                    type: string
+                  usePrivateIp:
+                    description: UsePrivateIp points to using private ip or public
+                      ip
+                    type: boolean
+                required:
+                - baseAmiId
+                - iamInstanceProfileName
+                - region
+                - securityGroupId
+                - subnetId
+                type: object
+              instanceSetupScript:
+                description: InstanceSetupScript defines the script to run during
+                  instance setup This will run within the normal setup script
+                type: string
+              providerName:
+                type: string
+              proxy:
+                description: ProxyConfigSpec defines the configuration for http and
+                  https proxy for all the instance
+                properties:
+                  enabled:
+                    type: boolean
+                  exclusions:
+                    items:
+                      type: string
+                    type: array
+                  httpEndpoint:
+                    type: string
+                  httpsEndpoint:
+                    type: string
+                required:
+                - enabled
+                - exclusions
+                - httpEndpoint
+                - httpsEndpoint
+                type: object
+              systemNamespace:
+                description: SystemNamespace points to namespace to store secrets
+                  and resources
+                type: string
+              utilImage:
+                properties:
+                  image:
+                    type: string
+                  registryPassword:
+                    type: string
+                  registryUsername:
+                    type: string
+                required:
+                - image
+                - registryPassword
+                - registryUsername
+                type: object
+            required:
+            - aws
+            - systemNamespace
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

@@ -1,0 +1,97 @@
+# This section configures the machine
+machine:
+  ssh:
+    enabled: false
+
+  swap:
+    enabled: false
+
+  proxy:
+    # Enable this if the machine is running behind corp proxy
+    enabled: {{ or .cluster.Spec.Infrastructure.Proxy.Enabled .provider.Spec.Proxy.Enabled }}
+    {{- if or .cluster.Spec.Infrastructure.Proxy.Enabled .provider.Spec.Proxy.Enabled }}
+    http_endpoint: {{ .cluster.Spec.Infrastructure.Proxy.HttpEndpoint | default .provider.Spec.Proxy.HttpEndpoint }}
+    https_endpoint: {{ .cluster.Spec.Infrastructure.Proxy.HttpsEndpoint | default .provider.Spec.Proxy.HttpsEndpoint }}
+    exclusions: "169.254.169.254,{{ join "," (.cluster.Spec.Infrastructure.Proxy.Exclusions | default .provider.Spec.Proxy.Exclusions) }}"
+    {{- end }}
+
+  docker:
+    local_registry:
+      enabled: false
+
+    # Authentication for private docker repositories
+    repositories:
+      - name: registry.com
+        username: test
+        password: test
+
+  # IP address to listen all exposed services on
+  listen_ip: 0.0.0.0
+
+  # Force update the machine config files even if they exist
+  force_update_configs: true
+
+cluster:
+  # Name of the cluster
+  name: menv
+
+  networking:
+    # Set the subnet for docker network
+    # It will be "$ip_subnet.0/16"
+    ip_subnet: "172.20.0"
+
+  repositories:
+    insecure:
+      - https://ghcr.io
+      - https://registry.k8s.io
+      - https://quay.io
+
+    # Any repositories listed under.machine.docker.repositories are automatically added
+    private:
+      - name: registry.com
+        username: test
+        password: test
+
+  kinst:
+    # Configure the kubernetes nodes for KINST
+    image: kindest/node:v1.25.9@sha256:c08d6c52820aa42e533b70bce0c2901183326d86dcdcbedecc9343681db45161
+
+    # Configure the machines to use for KINST.
+    machines:
+      {{- .instances | nindent 6 }}
+
+# This section configures the ingress server
+ingress:
+  enabled: true
+
+  # Base domain to use for the cluster.
+  domain: "{{ .cluster.Status.ClusterIngressDomain }}"
+
+  # Configure the certs location
+  certs:
+    {{- if eq .cluster.Spec.Infrastructure.CertIssuer "cert-manager" }}
+    mode: manual
+
+    # For Manual mode, the paths must point to corresponding cert files
+    paths:
+      key: ./certs/key.pem
+      bundle: ./certs/cert-bundle.pem
+    {{- else if eq .cluster.Spec.Infrastructure.CertIssuer "letsencrypt" }}
+    mode: letsencrypt
+
+    # For letsencrypt mode, following configures the cert generation
+    letsencrypt:
+      email: "{{ .cluster.Spec.Email }}"
+
+      # Challenge to use for domain verification
+      challenge: "route53"
+    {{- end }}
+
+  # Configure the ingress controller chart
+  controller:
+    enabled: "{{ .cluster.Spec.Features.InstallIngressNginx }}"
+
+# This section configures the dnsmasq server
+dns:
+  enabled: true
+  record: manual

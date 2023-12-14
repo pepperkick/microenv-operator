@@ -1,0 +1,393 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.10.0
+  creationTimestamp: null
+  name: clusters.microenv.pepperkick.com
+spec:
+  group: microenv.pepperkick.com
+  names:
+    categories:
+    - microenv
+    kind: Cluster
+    listKind: ClusterList
+    plural: clusters
+    singular: cluster
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=='Reconciled')].message
+      name: Status
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: Ready
+      type: string
+    - jsonPath: .status.clusterIngressDomain
+      name: Domain
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Cluster is the Schema for the clusters API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ClusterSpec defines the desired state of Cluster
+            properties:
+              email:
+                type: string
+              features:
+                description: FeaturesSpec defines the desired usage state of Cluster
+                properties:
+                  InstallIngressNginx:
+                    description: InstallIngressNginx defines if ingress nginx controller
+                      should be installed or not
+                    type: boolean
+                  argoWorkflow:
+                    description: ArgoWorkflow defines the workflow to run, ignored
+                      if InstallArgoWorkflow is set to false The contents has to be
+                      gzipped and base64 encoded to ensure it is read properly
+                    type: string
+                  installArgoWorkflow:
+                    description: InstallArgoWorkflow defines if argo workflow should
+                      be installed or not
+                    type: boolean
+                type: object
+              infrastructure:
+                description: InfrastructureSpec defines the desired infrastructure
+                  state of Cluster
+                properties:
+                  allowInstanceUpdateForUserData:
+                    description: AllowInstanceUpdateForUserData will update the instance
+                      CR when there is a user data change This means the instances
+                      might restart if needed
+                    type: boolean
+                  certIssuer:
+                    description: CertIssuer points to which certificate issuer to
+                      use Following values are supported - cert-manager - letsencrypt
+                    type: string
+                  instances:
+                    items:
+                      description: InstanceSpec defines the configuration of instances
+                        of the Cluster
+                      properties:
+                        dockerSwarmRole:
+                          description: DockerSwarmRole denotes the role that EC2 instance
+                            will use for docker swarm. This key is ignored. First
+                            instance will be manager and rest will be workers.
+                          type: string
+                        name:
+                          description: Name denotes the name to suffix the EC2 instance
+                            name with
+                          type: string
+                        nodes:
+                          description: Nodes denotes configuration for Kubernetes
+                            nodes created for this instance
+                          items:
+                            properties:
+                              labels:
+                                additionalProperties:
+                                  type: string
+                                description: Labels denotes the labels to apply to
+                                  Kubernetes node
+                                type: object
+                              taints:
+                                description: Taints denotes the labels to apply to
+                                  Kubernetes node
+                                items:
+                                  description: The node this Taint is attached to
+                                    has the "effect" on any pod that does not tolerate
+                                    the Taint.
+                                  properties:
+                                    effect:
+                                      description: Required. The effect of the taint
+                                        on pods that do not tolerate the taint. Valid
+                                        effects are NoSchedule, PreferNoSchedule and
+                                        NoExecute.
+                                      type: string
+                                    key:
+                                      description: Required. The taint key to be applied
+                                        to a node.
+                                      type: string
+                                    timeAdded:
+                                      description: TimeAdded represents the time at
+                                        which the taint was added. It is only written
+                                        for NoExecute taints.
+                                      format: date-time
+                                      type: string
+                                    value:
+                                      description: The taint value corresponding to
+                                        the taint key.
+                                      type: string
+                                  required:
+                                  - effect
+                                  - key
+                                  type: object
+                                type: array
+                            type: object
+                          type: array
+                        rootVolume:
+                          description: RootVolume defines the configuration of the
+                            root volume for the EC2 instance
+                          properties:
+                            deleteOnTermination:
+                              description: Whether the volume should be destroyed
+                                on instance termination. Defaults to true.
+                              type: boolean
+                            encrypted:
+                              description: Whether to enable volume encryption. Defaults
+                                to false. Must be configured to perform drift detection.
+                              type: boolean
+                            iops:
+                              description: Amount of provisioned IOPS. Only valid
+                                for volume_type of io1, io2 or gp3.
+                              type: number
+                            kmsKeyId:
+                              description: Amazon Resource Name (ARN) of the KMS Key
+                                to use when encrypting the volume. Must be configured
+                                to perform drift detection.
+                              type: string
+                            kmsKeyIdRef:
+                              description: Reference to a Key in kms to populate kmsKeyId.
+                              properties:
+                                name:
+                                  description: Name of the referenced object.
+                                  type: string
+                                policy:
+                                  description: Policies for referencing.
+                                  properties:
+                                    resolution:
+                                      default: Required
+                                      description: Resolution specifies whether resolution
+                                        of this reference is required. The default
+                                        is 'Required', which means the reconcile will
+                                        fail if the reference cannot be resolved.
+                                        'Optional' means this reference will be a
+                                        no-op if it cannot be resolved.
+                                      enum:
+                                      - Required
+                                      - Optional
+                                      type: string
+                                    resolve:
+                                      description: Resolve specifies when this reference
+                                        should be resolved. The default is 'IfNotPresent',
+                                        which will attempt to resolve the reference
+                                        only when the corresponding field is not present.
+                                        Use 'Always' to resolve the reference on every
+                                        reconcile.
+                                      enum:
+                                      - Always
+                                      - IfNotPresent
+                                      type: string
+                                  type: object
+                              required:
+                              - name
+                              type: object
+                            kmsKeyIdSelector:
+                              description: Selector for a Key in kms to populate kmsKeyId.
+                              properties:
+                                matchControllerRef:
+                                  description: MatchControllerRef ensures an object
+                                    with the same controller reference as the selecting
+                                    object is selected.
+                                  type: boolean
+                                matchLabels:
+                                  additionalProperties:
+                                    type: string
+                                  description: MatchLabels ensures an object with
+                                    matching labels is selected.
+                                  type: object
+                                policy:
+                                  description: Policies for selection.
+                                  properties:
+                                    resolution:
+                                      default: Required
+                                      description: Resolution specifies whether resolution
+                                        of this reference is required. The default
+                                        is 'Required', which means the reconcile will
+                                        fail if the reference cannot be resolved.
+                                        'Optional' means this reference will be a
+                                        no-op if it cannot be resolved.
+                                      enum:
+                                      - Required
+                                      - Optional
+                                      type: string
+                                    resolve:
+                                      description: Resolve specifies when this reference
+                                        should be resolved. The default is 'IfNotPresent',
+                                        which will attempt to resolve the reference
+                                        only when the corresponding field is not present.
+                                        Use 'Always' to resolve the reference on every
+                                        reconcile.
+                                      enum:
+                                      - Always
+                                      - IfNotPresent
+                                      type: string
+                                  type: object
+                              type: object
+                            tags:
+                              additionalProperties:
+                                type: string
+                              description: Map of tags to assign to the device.
+                              type: object
+                            throughput:
+                              description: Throughput to provision for a volume in
+                                mebibytes per second (MiB/s). This is only valid for
+                                volume_type of gp3.
+                              type: number
+                            volumeSize:
+                              description: Size of the volume in gibibytes (GiB).
+                              type: number
+                            volumeType:
+                              description: Type of volume. Valid values include standard,
+                                gp2, gp3, io1, io2, sc1, or st1. Defaults to gp2.
+                              type: string
+                          type: object
+                        type:
+                          description: Type denotes the machine type of the EC2 instance
+                          type: string
+                      required:
+                      - name
+                      - type
+                      type: object
+                    type: array
+                  proxy:
+                    description: ProxyConfigSpec defines the configuration for http
+                      and https proxy for all the instance
+                    properties:
+                      enabled:
+                        type: boolean
+                      exclusions:
+                        items:
+                          type: string
+                        type: array
+                      httpEndpoint:
+                        type: string
+                      httpsEndpoint:
+                        type: string
+                    required:
+                    - enabled
+                    - exclusions
+                    - httpEndpoint
+                    - httpsEndpoint
+                    type: object
+                required:
+                - certIssuer
+                - instances
+                type: object
+              provider:
+                description: Provider points to name of existing Provider resource
+                type: string
+            required:
+            - email
+            - infrastructure
+            type: object
+          status:
+            description: ClusterStatus defines the observed state of Cluster
+            properties:
+              certificateSecret:
+                description: CertificateSecret points to secret which contains the
+                  domain certificate
+                type: string
+              clusterIngressDomain:
+                description: ClusterIngressDomain points to ingress domain for the
+                  cluster
+                type: string
+              conditions:
+                description: Conditions contains the current status of the cluster
+                items:
+                  description: "Condition contains details for one aspect of the current
+                    state of this API Resource. --- This struct is intended for direct
+                    use as an array at the field path .status.conditions.  For example,
+                    \n type FooStatus struct{ // Represents the observations of a
+                    foo's current state. // Known .status.conditions.type are: \"Available\",
+                    \"Progressing\", and \"Degraded\" // +patchMergeKey=type // +patchStrategy=merge
+                    // +listType=map // +listMapKey=type Conditions []metav1.Condition
+                    `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\"
+                    protobuf:\"bytes,1,rep,name=conditions\"` \n // other fields }"
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition
+                        transitioned from one status to another. This should be when
+                        the underlying condition changed.  If that is not known, then
+                        using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating
+                        details about the transition. This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation
+                        that the condition was set based upon. For instance, if .metadata.generation
+                        is currently 12, but the .status.conditions[x].observedGeneration
+                        is 9, the condition is out of date with respect to the current
+                        state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating
+                        the reason for the condition's last transition. Producers
+                        of specific condition types may define expected values and
+                        meanings for this field, and whether the values are considered
+                        a guaranteed API. The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                        --- Many .condition.type values are consistent across resources
+                        like Available, but because arbitrary conditions can be useful
+                        (see .node.status.conditions), the ability to deconflict is
+                        important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              managerInstanceIp:
+                description: ManagerInstanceIp points to private IP of cluster's manager
+                  instance
+                type: string
+              managerInstancePublicIp:
+                description: ManagerInstancePublicIp points to public IP of cluster's
+                  manager instance
+                type: string
+            required:
+            - conditions
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

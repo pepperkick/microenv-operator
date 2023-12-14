@@ -1,0 +1,115 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cert-manager.io
+  resources:
+  - certificates
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ec2.aws.upbound.io
+  resources:
+  - instances
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ec2.aws.upbound.io
+  resources:
+  - instances/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - ec2.aws.upbound.io
+  resources:
+  - instances/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - microenv.pepperkick.com
+  resources:
+  - clusters
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - microenv.pepperkick.com
+  resources:
+  - clusters/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - microenv.pepperkick.com
+  resources:
+  - clusters/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - microenv.pepperkick.com
+  resources:
+  - configs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - route53.aws.upbound.io
+  resources:
+  - records
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - route53.aws.upbound.io
+  resources:
+  - records/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - route53.aws.upbound.io
+  resources:
+  - records/status
+  verbs:
+  - get
+  - patch
+  - update

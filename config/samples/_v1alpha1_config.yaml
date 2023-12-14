@@ -1,0 +1,25 @@
+apiVersion: microenv.pepperkick.com/v1alpha1
+kind: Config
+metadata:
+  labels:
+    app.kubernetes.io/name: config
+    app.kubernetes.io/instance: default
+    app.kubernetes.io/part-of: microenv-operator
+  name: default
+spec:
+  aws:
+    baseAmiId:
+    iamInstanceProfileName:
+    ingressDomain:
+    pcaCertIssuer:
+    region: us-west-2
+    route53HostedZone:
+    securityGroupId:
+    subnetId:
+    usePrivateIp: false
+  systemNamespace: microenv-operator-system
+  proxy:
+    enabled: false
+    exclusions:
+    httpEndpoint:
+    httpsEndpoint:

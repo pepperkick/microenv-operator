@@ -1,0 +1,26 @@
+domain: microenv.pepperkick.com
+layout:
+- go.kubebuilder.io/v3
+plugins:
+  manifests.sdk.operatorframework.io/v2: {}
+  scorecard.sdk.operatorframework.io/v2: {}
+projectName: microenv-operator
+repo: pepperkick.com/microenv-operator
+resources:
+- api:
+    crdVersion: v1
+    namespaced: false
+  controller: true
+  domain: microenv.pepperkick.com
+  kind: Cluster
+  path: pepperkick.com/microenv-operator/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: false
+  controller: true
+  domain: microenv.pepperkick.com
+  kind: Config
+  path: pepperkick.com/microenv-operator/api/v1alpha1
+  version: v1alpha1
+version: "3"

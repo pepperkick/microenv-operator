@@ -1,0 +1,27 @@
+apiVersion: microenv.pepperkick.com/v1alpha1
+kind: Cluster
+metadata:
+  labels:
+    app.kubernetes.io/name: cluster
+    app.kubernetes.io/instance: cluster-sample
+    app.kubernetes.io/part-of: microenv-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: microenv-operator
+  name: argo-cluster
+spec:
+  email: abc@test.com
+  infrastructure:
+    certIssuer: "letsencrypt"
+    allowInstanceUpdateForUserData: false
+    instances:
+      - name: manager
+        type: m5.large
+        rootVolume:
+          deleteOnTermination: true
+          iops: 3000
+          volumeSize: 50
+          volumeType: gp3
+          encrypted: false
+  features:
+    installArgoWorkflow: true
+
