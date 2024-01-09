@@ -46,6 +46,9 @@ type InfrastructureSpec struct {
 	AllowInstanceUpdateForUserData bool `json:"allowInstanceUpdateForUserData,omitempty"`
 
 	Proxy ProxyConfigSpec `json:"proxy,omitempty"`
+
+	// KubernetesVersion denotes the kubernetes version to deploy
+	KubernetesVersion string `json:"kubernetesVersion,omitempty"`
 }
 
 // FeaturesSpec defines the desired usage state of Cluster

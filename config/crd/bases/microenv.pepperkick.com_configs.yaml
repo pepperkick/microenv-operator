@@ -86,6 +86,9 @@ spec:
                 description: InstanceSetupScript defines the script to run during
                   instance setup This will run within the normal setup script
                 type: string
+              kubernetesVersion:
+                description: KubernetesVersion denotes the kubernetes version to deploy
+                type: string
               providerName:
                 type: string
               proxy:

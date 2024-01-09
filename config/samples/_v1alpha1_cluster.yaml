@@ -23,5 +23,4 @@ spec:
           volumeType: gp3
           encrypted: false
   features:
-    installArgoWorkflow: true
-
+    installArgoWorkflow: false

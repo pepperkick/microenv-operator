@@ -444,6 +444,37 @@ func (r *ClusterReconcilerProcess) generateMicroenvConfig(cluster *v1alpha1.Clus
 		return "", err
 	}
 
+	if strings.EqualFold(cluster.Spec.Infrastructure.KubernetesVersion, "") {
+		cluster.Spec.Infrastructure.KubernetesVersion = provider.Spec.KubernetesVersion
+	}
+
+	if strings.EqualFold(cluster.Spec.Infrastructure.KubernetesVersion, "") {
+		cluster.Spec.Infrastructure.KubernetesVersion = "v1.25.9"
+	}
+
+	var defaultKindImage string
+
+	switch cluster.Spec.Infrastructure.KubernetesVersion {
+	case "v1.28.0":
+		defaultKindImage = "kindest/node:v1.28.0@sha256:dad5a6238c5e41d7cac405fae3b5eda2ad1de6f1190fa8bfc64ff5bb86173213"
+		break
+	case "v1.27.1":
+		defaultKindImage = "kindest/node:v1.27.1@sha256:b7d12ed662b873bd8510879c1846e87c7e676a79fefc93e17b2a52989d3ff42b"
+		break
+	case "v1.26.4":
+		defaultKindImage = "kindest/node:v1.26.4@sha256:f4c0d87be03d6bea69f5e5dc0adb678bb498a190ee5c38422bf751541cebe92e"
+		break
+	case "v1.25.9":
+		defaultKindImage = "kindest/node:v1.25.9@sha256:c08d6c52820aa42e533b70bce0c2901183326d86dcdcbedecc9343681db45161"
+		break
+	case "v1.24.13":
+		defaultKindImage = "kindest/node:v1.24.13@sha256:cea86276e698af043af20143f4bf0509e730ec34ed3b7fa790cc0bea091bc5dd"
+		break
+	default:
+		r.log.Error(err, "Unsupported kubernetes version", "version", cluster.Spec.Infrastructure.KubernetesVersion)
+		return "", errors.New("unsupported kubernetes version " + cluster.Spec.Infrastructure.KubernetesVersion)
+	}
+
 	var instances []KinstInstance
 
 	if !ignoreNotFoundInstance {
@@ -488,9 +519,10 @@ func (r *ClusterReconcilerProcess) generateMicroenvConfig(cluster *v1alpha1.Clus
 
 	var configBuf bytes.Buffer
 	configData := map[string]any{
-		"cluster":   cluster,
-		"provider":  provider,
-		"instances": string(yamlString),
+		"cluster":          cluster,
+		"provider":         provider,
+		"instances":        string(yamlString),
+		"defaultKindImage": defaultKindImage,
 	}
 	err = tpl.Execute(&configBuf, configData)
 	if err != nil {

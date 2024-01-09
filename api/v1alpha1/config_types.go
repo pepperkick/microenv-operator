@@ -57,6 +57,9 @@ type ConfigSpec struct {
 
 	UtilImage UtilImageSpec `json:"utilImage,omitempty"`
 
+	// KubernetesVersion denotes the kubernetes version to deploy
+	KubernetesVersion string `json:"kubernetesVersion,omitempty"`
+
 	Aws AwsConfigSpec `json:"aws"`
 }
 

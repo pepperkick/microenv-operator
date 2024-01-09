@@ -264,6 +264,10 @@ spec:
                       - type
                       type: object
                     type: array
+                  kubernetesVersion:
+                    description: KubernetesVersion denotes the kubernetes version
+                      to deploy
+                    type: string
                   proxy:
                     description: ProxyConfigSpec defines the configuration for http
                       and https proxy for all the instance
